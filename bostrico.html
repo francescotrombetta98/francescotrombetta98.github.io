@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dinamica spazio-temporale del bostrico tipografo — Val Trompia</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; color: #222; background: #f9f9f9; }
+  header { background: #1f4e5f; color: white; padding: 2.5rem 2rem; }
+  header h1 { font-size: 1.7rem; margin-bottom: 0.5rem; }
+  header p { color: #a8d8ea; font-size: 0.95rem; }
+  .back { display: inline-block; margin: 1.5rem 2rem; color: #1f4e5f; text-decoration: none; font-size: 0.9rem; }
+  .back:hover { text-decoration: underline; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+  h2 { color: #1f4e5f; border-bottom: 2px solid #1f4e5f; padding-bottom: 0.4rem; margin: 2.5rem 0 1rem; font-size: 1.2rem; }
+  p { line-height: 1.8; color: #333; margin-bottom: 1rem; }
+  .tags { margin: 1rem 0 2rem; }
+  .tag { display: inline-block; background: #e0f0f5; color: #1f4e5f; border-radius: 4px; padding: 0.25rem 0.7rem; font-size: 0.82rem; margin: 0.2rem; }
+  .figure { margin: 2rem 0; }
+  .figure img { width: 100%; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+  .figure figcaption { margin-top: 0.6rem; font-size: 0.85rem; color: #555; line-height: 1.6; font-style: italic; text-align: center; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; align-items: start; }
+  .duo img { width: 100%; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+  .duo figcaption { margin-top: 0.4rem; font-size: 0.85rem; color: #555; font-style: italic; text-align: center; }
+  .result-box { background: #e8f4f8; border-left: 4px solid #1f4e5f; padding: 1rem 1.2rem; border-radius: 0 6px 6px 0; margin: 1.5rem 0; font-size: 0.95rem; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Dinamica spazio-temporale del bostrico tipografo nelle foreste di Marmentino (BS)</h1>
+  <p>Tirocinio di ricerca — Università degli Studi di Brescia, 2024</p>
+</header>
+
+<a class="back" href="index.html">← Torna al portfolio</a>
+
+<div class="container">
+
+  <div class="tags">
+    <span class="tag">QGIS</span>
+    <span class="tag">R</span>
+    <span class="tag">Ecologia forestale</span>
+    <span class="tag">Analisi spaziale</span>
+    <span class="tag">Rilievo in campo</span>
+    <span class="tag">Fotointerpretazione</span>
+  </div>
+
+  <h2>Il progetto</h2>
+  <p>Il bostrico tipografo (<em>Ips typographus</em> L.) è un coleottero scolitide che, in condizioni di stress delle piante ospiti, può innescare epidemie di scala regionale. Nell'area boschiva di Marmentino (Val Trompia, BS), la tempesta Vaia del 2018 ha schianto migliaia di abeti, creando le condizioni ideali per un'esplosione demografica del parassita negli anni successivi.</p>
+  <p>Il tirocinio, svolto presso l'Università degli Studi di Brescia, aveva come obiettivo analizzare la dinamica spazio-temporale degli attacchi su tre rilievi storici (2015, 2018, 2021), integrando fotointerpretazione di ortofoto ad alta risoluzione, rilievi in campo e analisi statistiche in R.</p>
+
+  <h2>Area di studio</h2>
+
+  <div class="duo">
+    <figure>
+      <img src="img/bostrico/1.PNG" alt="Inquadramento Marmentino">
+      <figcaption>Fig. 1. Limiti amministrativi del comune di Marmentino e inquadramento geografico.</figcaption>
+    </figure>
+    <figure>
+      <img src="img/bostrico/2.PNG" alt="Tipologie forestali">
+      <figcaption>Fig. 2. Boschi di Marmentino caratterizzati secondo la tipologia forestale (elaborata a partire dai dati del Geoportale della Regione Lombardia).</figcaption>
+    </figure>
+  </div>
+
+  <figure class="figure">
+    <img src="img/bostrico/3.PNG" alt="Boschi danneggiati Vaia 2018">
+    <figcaption>Fig. 3. Superficie forestale colpita dalla tempesta Vaia nel comune di Marmentino (elaborata a partire dai dati "Boschi danneggiati dalla Tempesta Vaia del 2018" del Geoportale della Regione Lombardia).</figcaption>
+  </figure>
+
+  <h2>Metodo</h2>
+  <p>Per ciascuno dei tre anni analizzati sono state scaricate le ortofoto ad alta risoluzione (pixel 20–50 cm) dal Geoportale Lombardia. La fotointerpretazione degli alberi colpiti è stata condotta in QGIS identificando i singoli abeti con chioma rossastra o assente. I punti rilevati in campo su parcelle di campionamento per ciascuna tipologia forestale sono stati integrati per validare la fotointerpretazione. L'analisi statistica in R ha compreso il confronto tra le annate e la distribuzione per tipologia forestale.</p>
+
+  <figure class="figure">
+    <img src="img/bostrico/4.PNG" alt="Progressione attacco su ortofoto">
+    <figcaption>Fig. 4. a) Area non attaccata, abeti sani; b) Abeti danneggiati con colorazione della chioma rossa/bruna; c) Abeti danneggiati con colorazione della chioma grigia.</figcaption>
+  </figure>
+
+  <figure class="figure">
+    <img src="img/bostrico/5.PNG" alt="Siti di campionamento">
+    <figcaption>Fig. 5. Distribuzione spaziale dei siti di campionamento suddivisi per tipologia forestale.</figcaption>
+  </figure>
+
+  <div class="duo">
+    <figure>
+      <img src="img/bostrico/7.PNG" alt="Caratteristiche categorie forestali">
+      <figcaption>Fig. 7. Caratteristiche descrittive delle 5 categorie forestali.</figcaption>
+    </figure>
+    <figure>
+      <img src="img/bostrico/8.PNG" alt="Box plot densità categorie forestali">
+      <figcaption>Fig. 8. Box plot della densità delle diverse categorie forestali.</figcaption>
+    </figure>
+  </div>
+
+  <h2>Risultati</h2>
+
+  <div class="result-box">
+    Il numero di abeti colpiti è passato da <strong>441 nel 2015</strong> a <strong>336 nel 2018</strong> per poi esplodere a <strong>1.810 nel 2021</strong>, più che quadruplicando il valore iniziale. La tempesta Vaia ha innescato un'accelerazione dell'infestazione che ha interessato trasversalmente tutte le tipologie forestali dell'area.
+  </div>
+
+  <figure class="figure">
+    <img src="img/bostrico/9.PNG" alt="Distribuzione spaziale alberi colpiti">
+    <figcaption>Fig. 9. Distribuzione degli abeti colpiti da <em>Ips typographus</em> nei tre anni di rilevazione nel comune di Marmentino.</figcaption>
+  </figure>
+
+  <figure class="figure">
+    <img src="img/bostrico/10.PNG" alt="Grafico abeti colpiti per anno">
+    <figcaption>Fig. 10. Grafico del numero di abeti colpiti nei tre anni di rilevazione.</figcaption>
+  </figure>
+
+  <figure class="figure">
+    <img src="img/bostrico/11.PNG" alt="Confronto dati regionali e studio">
+    <figcaption>Fig. 11. Differenza tra la superficie colpita riportata nel Geoportale della Regione Lombardia e i singoli alberi individuati nel presente studio.</figcaption>
+  </figure>
+
+</div>
+
+</body>
+</html>
