@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoraggio satellitare — Parco del Ticino</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; color: #222; background: #f9f9f9; }
+  header { background: #1f4e5f; color: white; padding: 2.5rem 2rem; }
+  header h1 { font-size: 1.7rem; margin-bottom: 0.5rem; }
+  header p { opacity: 0.85; font-size: 0.95rem; }
+  .back { display: inline-block; margin: 1.5rem 2rem; color: #1f4e5f; text-decoration: none; font-size: 0.9rem; }
+  .back:hover { text-decoration: underline; }
+  .container { max-width: 860px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+  h2 { color: #1f4e5f; border-bottom: 2px solid #1f4e5f; padding-bottom: 0.4rem; margin: 2.5rem 0 1rem; font-size: 1.2rem; }
+  p { line-height: 1.8; color: #333; margin-bottom: 1rem; }
+  .tags { margin: 1rem 0 2rem; }
+  .tag { display: inline-block; background: #e0f0f5; color: #1f4e5f; border-radius: 4px; padding: 0.25rem 0.7rem; font-size: 0.82rem; margin: 0.2rem; }
+  .figure { margin: 2rem 0; }
+  .figure img { width: 100%; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+  .figure figcaption { margin-top: 0.6rem; font-size: 0.85rem; color: #555; line-height: 1.6; font-style: italic; }
+  .results-note { background: #e8f4f8; border-left: 4px solid #1f4e5f; padding: 1rem 1.2rem; border-radius: 0 6px 6px 0; margin: 1.5rem 0; font-size: 0.95rem; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Monitoraggio satellitare della vegetazione nel Parco Naturale del Ticino Piemontese</h1>
+  <p>Analisi del trend e fenologia tramite serie storiche Sentinel-2 e Landsat</p>
+</header>
+
+<a class="back" href="index.html">← Torna al portfolio</a>
+
+<div class="container">
+
+  <div class="tags">
+    <span class="tag">Landsat 1984–2025</span>
+    <span class="tag">Sentinel-2 2016–2025</span>
+    <span class="tag">R · phenofit · terra</span>
+    <span class="tag">QGIS</span>
+    <span class="tag">Mann-Kendall</span>
+    <span class="tag">Fenologia</span>
+    <span class="tag">ENEA · Università di Padova · 2026</span>
+  </div>
+
+  <h2>Il progetto</h2>
+  <p>Il Parco Naturale del Ticino Piemontese, parte dell'area protetta fluviale più estesa d'Europa e incluso nella Rete Natura 2000, è situato a ridosso dell'aeroporto di Malpensa, il cui traffico è cresciuto da 3,5 a oltre 31 milioni di passeggeri annui tra la metà degli anni '90 e il 2025. Le emissioni del ciclo di atterraggio e decollo (LTO) sollevano interrogativi sulla salute della vegetazione dell'area protetta.</p>
+  <p>Il lavoro, sviluppato in collaborazione con ENEA nell'ambito del Master GIScience dell'Università di Padova, analizza la dinamica temporale della vegetazione integrando due dataset satellitari complementari: Sentinel-2 ad alta risoluzione spaziale (2016–2025) e Landsat con oltre quarant'anni di profondità storica (1984–2025). L'obiettivo è verificare la presenza di trend significativi nel vigore vegetativo e caratterizzarne la distribuzione spaziale e la componente fenologica.</p>
+
+  <figure class="figure">
+    <img src="img/ticino/INQUADRAMENTO.jpeg" alt="Inquadramento geografico del Parco">
+    <figcaption>Carta 1. Inquadramento geografico del Parco Naturale del Ticino Piemontese.</figcaption>
+  </figure>
+
+  <h2>Dati e metodo</h2>
+  <p>Sono state elaborate 625 scene Landsat (Collection 2 Level-2, sensori TM/ETM+/OLI/OLI-2) e 377 scene Sentinel-2 L2A. Dopo i filtri di qualità — copertura nuvolosa ≤10% e almeno il 70% di pixel validi sull'area del Parco — sono risultate 470 scene Landsat e 299 Sentinel-2 utili per l'analisi.</p>
+  <p>I trend sono stati valutati con il test non parametrico di Mann-Kendall e la pendenza di Sen, con correzione di Hamed e Rao per l'autocorrelazione seriale. L'analisi pixel-wise ha prodotto raster di τ, p-value e Sen slope per l'intera superficie del Parco. Le metriche fenologiche (SOS, EOS, LOS) sono state estratte tramite il pacchetto R phenofit.</p>
+
+  <figure class="figure">
+    <img src="img/ticino/Workflow.png" alt="Schema del workflow">
+    <figcaption>Fig. 3. Schema del workflow di estrazione delle metriche fenologiche dalla serie Landsat tramite il pacchetto phenofit.</figcaption>
+  </figure>
+
+  <figure class="figure">
+    <img src="img/ticino/scene_per_anno.png" alt="Scene disponibili per anno">
+    <figcaption>Fig. 4. Numero di scene NDVI disponibili per anno nella stagione vegetativa (marzo–ottobre), per Landsat (1984–2025) e Sentinel-2 (2016–2025), dopo l'applicazione dei filtri di copertura.</figcaption>
+  </figure>
+
+  <h2>Risultati</h2>
+
+  <div class="results-note">
+    La serie Landsat mostra un trend NDVI positivo significativo (τ = +0,468, p &lt; 0,001): il <strong>74% della superficie del Parco</strong> presenta un inverdimento significativo, diffuso trasversalmente a tutte le tipologie forestali. La serie Sentinel-2, più breve, non evidenzia trend significativi (τ = +0,422, p = 0,107), esito coerente con la ridotta potenza statistica di una serie decennale.
+  </div>
+
+  <figure class="figure">
+    <img src="img/ticino/Grafico_ok.png" alt="Trend NDVI ed EVI">
+    <figcaption>Fig. 5. Distribuzione spaziale del trend NDVI pixel-wise (Mann-Kendall, 1984–2025). a) Pendenza del trend (Sen slope); b) Forza del trend (τ di Kendall). In grigio i pixel non significativi (p≥0,05); il riquadro in basso a destra mostra l'area (km²) per classe di significatività.</figcaption>
+  </figure>
+
+  <figure class="figure">
+    <img src="img/ticino/Chidomina.png" alt="Composizione tipologie forestali">
+    <figcaption>Fig. 6. Composizione percentuale dei pixel forestali del Parco per tipologia (Carta Forestale regionale 2025).</figcaption>
+  </figure>
+
+  <figure class="figure">
+    <img src="img/ticino/Classi_trend_NDVI.png" alt="Trend per tipologia forestale">
+    <figcaption>Fig. 7. Ripartizione percentuale dei pixel per classe di trend NDVI (significativo positivo, non significativo, significativo negativo) per tipologia forestale (CF_25).</figcaption>
+  </figure>
+
+  <figure class="figure">
+    <img src="img/ticino/Chicambia.png" alt="Sen slope per tipologia forestale">
+    <figcaption>Fig. 8. Sen slope medio (×10⁻³ NDVI/anno) per tipologia forestale, calcolato sui pixel a trend significativo (p&lt;0,05).</figcaption>
+  </figure>
+
+  <figure class="figure">
+    <img src="img/ticino/Heatmap.png" alt="Heatmap NDVI mensile">
+    <figcaption>Fig. 9. Heatmap della distribuzione dell'NDVI mediano mensile (marzo–ottobre) per l'intera serie Landsat 1984–2025.</figcaption>
+  </figure>
+
+  <figure class="figure">
+    <img src="img/ticino/dasfvva.png" alt="Trend metriche fenologiche">
+    <figcaption>Fig. 10. Trend delle metriche fenologiche estratte dalla serie Landsat (1984–2025) tramite pipeline phenofit. a) Inizio stagione fenologica (SOS); b) Fine stagione fenologica (EOS); c) Durata stagione.</figcaption>
+  </figure>
+
+  <h2>Conclusioni</h2>
+  <p>I risultati sono coerenti con il fenomeno di greening globale documentato negli ultimi decenni, ma non permettono di evidenziare un impatto specifico dell'aeroporto di Malpensa sulla vegetazione del Parco. L'analisi fenologica rileva un anticipo del SOS e un posticipo dell'EOS, con conseguente allungamento della stagione; questi trend non risultano però separabili dalla sistematica crescita del numero di scene Landsat disponibili nel tempo.</p>
+  <p>Il lavoro costituisce una caratterizzazione di base utile per un monitoraggio satellitare continuativo, da integrare in futuro con variabili climatiche locali e rilievi in situ.</p>
+
+</div>
+
+</body>
+</html>
