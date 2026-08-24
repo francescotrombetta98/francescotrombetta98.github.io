@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analisi GIS — Comune di Coccaglio</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; color: #222; background: #f9f9f9; }
+  header { background: #1f4e5f; color: white; padding: 2.5rem 2rem; }
+  header h1 { font-size: 1.7rem; margin-bottom: 0.5rem; }
+  header p { color: #a8d8ea; font-size: 0.95rem; }
+  .back { display: inline-block; margin: 1.5rem 2rem; color: #1f4e5f; text-decoration: none; font-size: 0.9rem; }
+  .back:hover { text-decoration: underline; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+  h2 { color: #1f4e5f; border-bottom: 2px solid #1f4e5f; padding-bottom: 0.4rem; margin: 2.5rem 0 1rem; font-size: 1.2rem; }
+  p { line-height: 1.8; color: #333; margin-bottom: 1rem; }
+  .tags { margin: 1rem 0 2rem; }
+  .tag { display: inline-block; background: #e0f0f5; color: #1f4e5f; border-radius: 4px; padding: 0.25rem 0.7rem; font-size: 0.82rem; margin: 0.2rem; }
+  .figure { margin: 2rem 0; }
+  .figure img { width: 100%; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+  .figure figcaption { margin-top: 0.6rem; font-size: 0.85rem; color: #555; line-height: 1.6; font-style: italic; }
+  .duo { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin: 2rem 0; }
+  .duo img { width: 100%; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+  .duo figcaption { margin-top: 0.4rem; font-size: 0.82rem; color: #555; font-style: italic; }
+  .trio { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 2rem 0; }
+  .trio img { width: 100%; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+  .trio figcaption { margin-top: 0.4rem; font-size: 0.82rem; color: #555; font-style: italic; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Analisi GIS del territorio comunale — Comune di Coccaglio (BS)</h1>
+  <p>Laboratorio di GIS per la pianificazione — Università degli Studi di Brescia, 2024</p>
+</header>
+
+<a class="back" href="index.html">← Torna al portfolio</a>
+
+<div class="container">
+
+  <div class="tags">
+    <span class="tag">QGIS</span>
+    <span class="tag">Cartografia tematica</span>
+    <span class="tag">Pianificazione territoriale</span>
+    <span class="tag">DBTR · DBGT · DUSAF</span>
+    <span class="tag">Open data regionali</span>
+    <span class="tag">Layout di stampa professionale</span>
+  </div>
+
+  <h2>Il progetto</h2>
+  <p>Progetto cartografico sviluppato nell'ambito del Laboratorio di GIS per la pianificazione del corso di laurea magistrale in Tecnologie per la Transizione Ecologica in Agricoltura. L'obiettivo era produrre un'analisi GIS completa del territorio del Comune di Coccaglio (BS), articolata su tre tavole a scale diverse, integrando dati da fonti istituzionali multiple: DataBase Topografico Regionale (DBTR), DataBase GeoTopografico comunale (DBGT), Geoportale Regione Lombardia e DUSAF7.</p>
+  <p>Il sistema di riferimento adottato per tutte le tavole è EPSG:32632 (WGS 84, UTM 32N). La gestione del progetto è avvenuta su cartella condivisa con struttura organizzata per tipologia di dato, stili dei layer e risultati.</p>
+
+  <h2>Tavola 1 — Carta di inquadramento territoriale (scala 1:100.000)</h2>
+  <p>Inquadramento del Comune di Coccaglio nel contesto regionale lombardo. La tavola restituisce la rete cinematica (autostrade A4 e A35, SS11, ferrovia), la rete idrografica (Lago di Iseo, fiume Oglio), le aree naturali protette (Rete Natura 2000, RER, aree protette) e il perimetro della DOCG Franciacorta, ottenuto dal PTRA Franciacorta. I comuni limitrofi sono stati identificati tramite la funzione <em>overlay_touches()</em>.</p>
+
+  <figure class="figure">
+    <img src="img/coccaglio/Tav_1_1.PNG" alt="Carta di inquadramento territoriale del Comune di Coccaglio">
+    <figcaption>Tavola 1. Carta di inquadramento territoriale del Comune di Coccaglio, scala 1:100.000. DataBase Topografico Regionale (WMS), limiti amministrativi, rete cinematica, idrografica, aree naturali e DOCG Franciacorta.</figcaption>
+  </figure>
+
+  <h2>Tavola 2 — Mappa dell'ambiente urbano (scala 1:5.000)</h2>
+  <p>Analisi dettagliata del territorio comunale. La mappa principale mostra la distribuzione dei servizi, la rete di mobilità intra-comunale (incluse le piste ciclabili e la viabilità intrapoderale) e il verde urbano. Le mappe accessorie approfondiscono la destinazione d'uso degli edifici (residenziale, produttivo, nuclei di antica formazione), le altezze per classi di 3 m e le volumetrie degli edifici per cinque classi. Tre grafici quantitativi mostrano la composizione delle superfici edificate, la distribuzione delle volumetrie e il rapporto tra superficie edificata e verde urbano.</p>
+
+  <div class="duo">
+    <figure>
+      <img src="img/coccaglio/Tav_2_1.PNG" alt="Mappa ambiente urbano">
+      <figcaption>Mappa principale dell'ambiente urbano (scala 1:5.000).</figcaption>
+    </figure>
+    <figure>
+      <img src="img/coccaglio/Tav_2_1_leg.PNG" alt="Legenda mappa urbana">
+      <figcaption>Legenda della mappa principale.</figcaption>
+    </figure>
+  </div>
+
+  <div class="trio">
+    <figure>
+      <img src="img/coccaglio/Tav_2_2.PNG" alt="Destinazione d'uso edifici">
+      <figcaption>Destinazione d'uso degli edifici.</figcaption>
+    </figure>
+    <figure>
+      <img src="img/coccaglio/Tav_2_3.PNG" alt="Altezze edifici">
+      <figcaption>Altezze degli edifici (classi di 3 m).</figcaption>
+    </figure>
+    <figure>
+      <img src="img/coccaglio/Tav_2_4.PNG" alt="Volumi edifici">
+      <figcaption>Volumetrie degli edifici.</figcaption>
+    </figure>
+  </div>
+
+  <div class="trio">
+    <figure>
+      <img src="img/coccaglio/Tav_2_5.PNG" alt="Grafico superficie edificata">
+      <figcaption>Superficie comunale edificata per destinazione d'uso.</figcaption>
+    </figure>
+    <figure>
+      <img src="img/coccaglio/Tav_2_6.PNG" alt="Grafico volumetrie">
+      <figcaption>Distribuzione di frequenza delle volumetrie degli edifici.</figcaption>
+    </figure>
+    <figure>
+      <img src="img/coccaglio/Tav_2_7.PNG" alt="Grafico verde urbano">
+      <figcaption>Superficie edificata e verde urbano a confronto.</figcaption>
+    </figure>
+  </div>
+
+  <figure class="figure">
+    <img src="img/coccaglio/Tav_2_8.PNG" alt="Copertina tavola 2">
+    <figcaption>Cartiglio della Tavola 2 — Comune di Coccaglio, Laboratorio di GIS per la pianificazione, Università degli Studi di Brescia (2024).</figcaption>
+  </figure>
+
+  <h2>Tavola 3 — Mappa dell'ambiente extraurbano (scala 1:10.000)</h2>
+  <p>Analisi del territorio extracomunale con focus sull'uso del suolo agricolo. Il territorio risulta a forte vocazione maidicola nella pianura; a ridosso del Monte Orfano compaiono vigneti e oliveti, confermando l'appartenenza alla DOCG Franciacorta. La mappa accessoria (scala 1:70.000) approfondisce la rete ecologica locale, individuando varchi, corridoi, zone di riqualificazione e aree di criticità per la connettività faunistica.</p>
+
+  <figure class="figure">
+    <img src="img/coccaglio/Tav_3_1.PNG" alt="Mappa ambiente extraurbano">
+    <figcaption>Tavola 3. Mappa dell'ambiente extraurbano del Comune di Coccaglio, scala 1:10.000. Uso del suolo agricolo, rete ecologica e connettività territoriale.</figcaption>
+  </figure>
+
+</div>
+
+</body>
+</html>
