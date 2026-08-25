@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analisi della pendenza su area estrattiva</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; color: #222; background: #f9f9f9; }
+  header { background: #1f4e5f; color: white; padding: 2.5rem 2rem; }
+  header h1 { font-size: 1.7rem; margin-bottom: 0.5rem; }
+  header p { color: #a8d8ea; font-size: 0.95rem; }
+  .back { display: inline-block; margin: 1.5rem 2rem; color: #1f4e5f; text-decoration: none; font-size: 0.9rem; }
+  .back:hover { text-decoration: underline; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+  h2 { color: #1f4e5f; border-bottom: 2px solid #1f4e5f; padding-bottom: 0.4rem; margin: 2.5rem 0 1rem; font-size: 1.2rem; }
+  p { line-height: 1.8; color: #333; margin-bottom: 1rem; }
+  .tags { margin: 1rem 0 2rem; }
+  .tag { display: inline-block; background: #e0f0f5; color: #1f4e5f; border-radius: 4px; padding: 0.25rem 0.7rem; font-size: 0.82rem; margin: 0.2rem; }
+  .figure { margin: 2rem 0; }
+  .figure img { width: 100%; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+  .figure figcaption { margin-top: 0.6rem; font-size: 0.85rem; color: #555; line-height: 1.6; font-style: italic; text-align: center; }
+  .result-box { background: #e8f4f8; border-left: 4px solid #1f4e5f; padding: 1rem 1.2rem; border-radius: 0 6px 6px 0; margin: 1.5rem 0; font-size: 0.95rem; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Analisi della pendenza su area estrattiva</h1>
+  <p>GIS applicato al controllo tecnico-documentale — Trevi (PG), 2026</p>
+</header>
+
+<a class="back" href="index.html">← Torna al portfolio</a>
+
+<div class="container">
+
+  <div class="tags">
+    <span class="tag">QGIS</span>
+    <span class="tag">Georeferenziazione</span>
+    <span class="tag">Analisi DTM</span>
+    <span class="tag">TINITALY</span>
+    <span class="tag">Cartografia tematica</span>
+    <span class="tag">GIS applicato</span>
+  </div>
+
+  <h2>Il progetto</h2>
+  <p>Analisi GIS prodotta per un'associazione civica locale a supporto di un'istanza formale alla Regione Umbria. A partire dalla georeferenziazione di una tavola progettuale cartacea (Elab. 32, apr. 2013) e dalla digitalizzazione del perimetro autorizzato, è stata condotta un'analisi raster della pendenza su DTM TINITALY 10m, classificata in quattro fasce (≤30°, 30–45°, 45–60°, >60°).</p>
+  <p>La pendenza massima rilevata nell'area è risultata pari a <strong>64.4°</strong>. Il risultato è stato restituito in un layout di stampa professionale a scala 1:2000, con basemap Pan-European VHR Image Mosaic 2021 (Copernicus/EEA, licenza aperta). Sistema di riferimento: EPSG:32632 (WGS84 UTM 32N).</p>
+
+  <h2>Metodologia</h2>
+  <p>Il flusso di lavoro ha compreso: georeferenziazione della tavola cartacea tramite punti di controllo su cartografia di riferimento; digitalizzazione manuale del perimetro dell'area estrattiva; calcolo della pendenza dal DTM TINITALY/01 10m (INGV); riclassificazione raster in quattro classi; produzione del layout di stampa con legenda, scala grafica, freccia nord e fonti dati.</p>
+
+  <div class="result-box">
+    Pendenza massima rilevata: <strong>64.4°</strong>. Le aree con pendenza superiore a 45° sono localizzate nella porzione centrale dell'area estrattiva. La classificazione in quattro fasce evidenzia una distribuzione articolata delle pendenze all'interno del perimetro autorizzato.
+  </div>
+
+  <h2>Tavola cartografica</h2>
+
+  <figure class="figure">
+    <img src="img/cava/tavola_pendenza.JPG" alt="TAV. 1 — Analisi della pendenza area estrattiva">
+    <figcaption>TAV. 1 — Analisi della pendenza, scala 1:2000. DTM: TINITALY/01 10m © INGV. Basemap: VHR 2021 © EEA. Perimetro: digitalizzato da Elab. 32, apr. 2013. Elaborazione: QGIS 3.40.</figcaption>
+  </figure>
+
+</div>
+
+</body>
+</html>
