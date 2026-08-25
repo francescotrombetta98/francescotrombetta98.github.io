@@ -13,8 +13,14 @@
   header h1 { font-size: 1.05rem; }
   header a { color: #a8d8ea; text-decoration: none; font-size: 0.85rem; margin-left: auto; }
   #map { flex: 1; }
-  .info-box { background: white; padding: 0.7rem 1rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 0.8rem; line-height: 1.6; max-width: 230px; }
-  .info-box h4 { color: #1f4e5f; margin-bottom: 0.3rem; font-size: 0.88rem; border-bottom: 1px solid #ddd; padding-bottom: 0.3rem; }
+  .info-box {
+    background: white; padding: 0.8rem 1rem; border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 0.78rem;
+    line-height: 1.55; max-width: 270px;
+  }
+  .info-box h4 { color: #1f4e5f; margin-bottom: 0.4rem; font-size: 0.88rem; border-bottom: 1px solid #ddd; padding-bottom: 0.3rem; }
+  .info-box p { margin-bottom: 0.5rem; }
+  .info-box .fonte { font-size: 0.7rem; color: #777; font-style: italic; margin-top: 0.4rem; }
   .legend { background: white; padding: 0.6rem 0.9rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 0.78rem; max-width: 210px; max-height: 280px; overflow-y: auto; }
   .legend h4 { color: #1f4e5f; margin-bottom: 0.4rem; font-size: 0.85rem; }
   .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
@@ -33,7 +39,6 @@
 <script>
 const BASE = 'img/webgis/ticino/';
 
-// Palette colori per tipologie forestali
 const PALETTE = [
   '#8B4513','#228B22','#556B2F','#6B8E23','#2E8B57',
   '#3CB371','#20B2AA','#5F9EA0','#4682B4','#6A5ACD',
@@ -45,10 +50,7 @@ let paletteIdx = 0;
 
 function getColor(tipo) {
   if (!tipo) return '#aaa';
-  if (!colorMap[tipo]) {
-    colorMap[tipo] = PALETTE[paletteIdx % PALETTE.length];
-    paletteIdx++;
-  }
+  if (!colorMap[tipo]) { colorMap[tipo] = PALETTE[paletteIdx % PALETTE.length]; paletteIdx++; }
   return colorMap[tipo];
 }
 
@@ -59,67 +61,36 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18
 }).addTo(map);
 
-// Raccogliamo tutti i layer e li passiamo a addControls quando tutti sono pronti
-let layerPiemonte, layerLombardia, layerComuni, layerMalpensa, layerNatura, layerForeste;
+let layerPiemonte, layerLombardia, layerNatura, layerForeste;
 let loaded = 0;
-const TOTAL = 6;
+const TOTAL = 4;
 
 function tryAddControls() {
   loaded++;
   if (loaded === TOTAL) addControls();
 }
 
-// Parco Piemontese (limiti_ticino = l'area di studio)
 fetch(BASE + 'limiti_ticino.geojson')
   .then(r => r.json())
   .then(data => {
     layerPiemonte = L.geoJSON(data, {
-      style: { color: '#003399', weight: 2.5, fillColor: '#3366ff', fillOpacity: 0.18 },
+      style: { color: '#003399', weight: 2.5, fillColor: '#3366ff', fillOpacity: 0.15 },
       onEachFeature: (f, l) => l.bindPopup('<b>Parco Naturale del Ticino Piemontese</b>')
     }).addTo(map);
     map.fitBounds(layerPiemonte.getBounds().pad(0.12));
     tryAddControls();
   });
 
-// Parco Lombardo
 fetch(BASE + 'parco_ticino_lombardia.geojson')
   .then(r => r.json())
   .then(data => {
     layerLombardia = L.geoJSON(data, {
-      style: { color: '#006600', weight: 2, fillColor: '#33cc33', fillOpacity: 0.15 },
+      style: { color: '#006600', weight: 2, fillColor: '#33cc33', fillOpacity: 0.12 },
       onEachFeature: (f, l) => l.bindPopup('<b>Parco Lombardo della Valle del Ticino</b>')
     }).addTo(map);
     tryAddControls();
   });
 
-// Comuni
-fetch(BASE + 'limiti_comuni_ticino.geojson')
-  .then(r => r.json())
-  .then(data => {
-    layerComuni = L.geoJSON(data, {
-      style: { color: '#666', weight: 1, fillColor: 'transparent', fillOpacity: 0 },
-      onEachFeature: (f, l) => {
-        const p = f.properties;
-        const nome = p && (p.COMUNE || p.comune || p.NAME || p.name || Object.values(p).find(v => typeof v === 'string'));
-        if (nome) l.bindPopup('<b>' + nome + '</b>');
-      }
-    }).addTo(map);
-    tryAddControls();
-  });
-
-// Malpensa — solo punto
-fetch(BASE + 'malpensa_punto.geojson')
-  .then(r => r.json())
-  .then(data => {
-    const icon = L.divIcon({ html: '✈', className: '', iconSize: [22, 22], iconAnchor: [11, 11] });
-    layerMalpensa = L.geoJSON(data, {
-      pointToLayer: (f, latlng) => L.marker(latlng, { icon }),
-      onEachFeature: (f, l) => l.bindPopup('<b>Aeroporto Internazionale di Malpensa</b>')
-    }).addTo(map);
-    tryAddControls();
-  });
-
-// Natura 2000 — spento
 fetch(BASE + 'siti_rete_natura_2000.geojson')
   .then(r => r.json())
   .then(data => {
@@ -134,14 +105,12 @@ fetch(BASE + 'siti_rete_natura_2000.geojson')
     tryAddControls();
   });
 
-// Carta Forestale — spenta, con colori per tipologia
 fetch(BASE + 'carta_forestale_2025.geojson')
   .then(r => r.json())
   .then(data => {
     layerForeste = L.geoJSON(data, {
       style: f => ({
-        color: '#555',
-        weight: 0.4,
+        color: '#555', weight: 0.4,
         fillColor: getColor(f.properties && f.properties.lc_tipi_10),
         fillOpacity: 0.75
       }),
@@ -159,10 +128,8 @@ function addControls() {
   const overlays = {
     'Parco Naturale del Ticino Piemontese': layerPiemonte,
     'Parco Lombardo della Valle del Ticino': layerLombardia,
-    'Comuni': layerComuni,
-    'Aeroporto Malpensa': layerMalpensa,
-    'Carta Forestale 2025 (spento)': layerForeste,
-    'Rete Natura 2000 (spento)': layerNatura
+    'Carta Forestale 2025': layerForeste,
+    'Rete Natura 2000': layerNatura
   };
   L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 
@@ -170,42 +137,44 @@ function addControls() {
   const info = L.control({ position: 'bottomleft' });
   info.onAdd = () => {
     const div = L.DomUtil.create('div', 'info-box');
-    div.innerHTML = `<h4>Parco Naturale del Ticino Piemontese</h4>
-      Superficie: ~6.500 ha<br>
-      Istituito: 1978<br>
-      Sito Natura 2000: IT1110020<br>
-      In prossimità dell'Aeroporto di Malpensa.<br><br>
-      Progetto: monitoraggio satellitare NDVI 1984–2025.`;
+    div.innerHTML = `<h4>Il Parco del Ticino</h4>
+      <p>In un territorio di pianura intensamente trasformato e frammentato come quello padano, le fasce fluviali rappresentano tra i pochi spazi naturali residui: serbatoi di biodiversità e al tempo stesso corridoi ecologici che assicurano la connettività tra gli ambienti naturali. Tra questi, il corridoio del fiume Ticino è uno dei più rilevanti.</p>
+      <p>Il Parco Naturale del Ticino Piemontese, istituito nel 1978, si estende lungo la riva nord-occidentale del fiume Ticino, dall'uscita dal Lago Maggiore fino al confine con la Lombardia. Insieme al Parco Lombardo della Valle del Ticino costituisce l'area protetta fluviale più estesa d'Europa, riconosciuta nel circuito MAB UNESCO e inclusa nella rete Natura 2000.</p>
+      <p>Il territorio alterna tratti di riva boscata a settori di valle più ampia, dove si susseguono boschi, prati stabili, coltivi, ghiareti e lanche; nei rami secondari a lento scorrimento del fiume si concentra gran parte della biodiversità legata all'ambiente fluviale.</p>
+      <p class="fonte">Fonte: Ente di Gestione delle Aree Protette del Ticino e del Lago Maggiore</p>`;
     return div;
   };
   info.addTo(map);
 
-  // Legenda carta forestale (si aggiorna quando il layer è acceso)
+  // Legenda carta forestale
   const legendCtrl = L.control({ position: 'bottomright' });
   legendCtrl.onAdd = () => {
     const div = L.DomUtil.create('div', 'legend');
     div.id = 'forest-legend';
     div.style.display = 'none';
-    div.innerHTML = '<h4>Tipologie forestali</h4>';
-    Object.entries(colorMap).forEach(([tipo, col]) => {
-      div.innerHTML += `<div class="legend-item"><div class="legend-color" style="background:${col}"></div><span>${tipo}</span></div>`;
-    });
     return div;
   };
   legendCtrl.addTo(map);
 
-  map.on('overlayadd overlayremove', e => {
+  function updateLegend() {
     const leg = document.getElementById('forest-legend');
     if (!leg) return;
-    if (e.type === 'overlayadd' && e.name.includes('Carta Forestale')) {
-      leg.style.display = 'block';
-      leg.innerHTML = '<h4>Tipologie forestali</h4>';
-      Object.entries(colorMap).forEach(([tipo, col]) => {
-        leg.innerHTML += `<div class="legend-item"><div class="legend-color" style="background:${col}"></div><span>${tipo}</span></div>`;
-      });
+    leg.innerHTML = '<h4>Tipologie forestali</h4>';
+    Object.entries(colorMap).forEach(([tipo, col]) => {
+      leg.innerHTML += `<div class="legend-item"><div class="legend-color" style="background:${col}"></div><span>${tipo}</span></div>`;
+    });
+  }
+
+  map.on('overlayadd', e => {
+    if (e.name === 'Carta Forestale 2025') {
+      const leg = document.getElementById('forest-legend');
+      if (leg) { leg.style.display = 'block'; updateLegend(); }
     }
-    if (e.type === 'overlayremove' && e.name.includes('Carta Forestale')) {
-      leg.style.display = 'none';
+  });
+  map.on('overlayremove', e => {
+    if (e.name === 'Carta Forestale 2025') {
+      const leg = document.getElementById('forest-legend');
+      if (leg) leg.style.display = 'none';
     }
   });
 }
