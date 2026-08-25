@@ -13,25 +13,13 @@
   header h1 { font-size: 1.05rem; }
   header a { color: #a8d8ea; text-decoration: none; font-size: 0.85rem; margin-left: auto; }
   #map { flex: 1; }
-
-  /* Card compatta in basso a sinistra */
-  .info-card {
-    background: white; padding: 0.9rem 1.1rem; border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.25); font-size: 0.88rem;
-    max-width: 260px; line-height: 1.5;
-  }
+  .info-card { background: white; padding: 0.9rem 1.1rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.25); font-size: 0.88rem; max-width: 260px; line-height: 1.5; }
   .info-card h4 { color: #1f4e5f; font-size: 1rem; margin-bottom: 0.5rem; }
   .sapevi-label { display: inline-block; background: #e8f5e9; color: #2e7d32; font-size: 0.78rem; font-weight: 600; border-radius: 4px; padding: 0.15rem 0.5rem; margin-bottom: 0.5rem; }
   .sapevi-text { font-size: 0.85rem; color: #333; margin-bottom: 0.7rem; line-height: 1.5; }
   .btn-scopri { background: #1f4e5f; color: white; border: none; border-radius: 5px; padding: 0.4rem 0.9rem; font-size: 0.84rem; cursor: pointer; }
   .btn-scopri:hover { background: #163d4e; }
-
-  /* Pannello laterale */
-  #side-panel {
-    position: fixed; top: 0; left: -380px; width: 360px; height: 100vh;
-    background: white; box-shadow: 3px 0 15px rgba(0,0,0,0.2);
-    transition: left 0.35s ease; z-index: 1100; display: flex; flex-direction: column;
-  }
+  #side-panel { position: fixed; top: 0; left: -380px; width: 360px; height: 100vh; background: white; box-shadow: 3px 0 15px rgba(0,0,0,0.2); transition: left 0.35s ease; z-index: 1100; display: flex; flex-direction: column; }
   #side-panel.open { left: 0; }
   .panel-header { background: #1f4e5f; color: white; padding: 1rem 1.2rem; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
   .panel-header h3 { font-size: 1rem; }
@@ -39,8 +27,6 @@
   .panel-body { padding: 1.2rem 1.3rem; overflow-y: auto; font-size: 0.88rem; line-height: 1.7; color: #333; flex: 1; }
   .panel-body p { margin-bottom: 0.9rem; }
   .panel-body .fonte { font-size: 0.75rem; color: #777; font-style: italic; margin-top: 0.5rem; border-top: 1px solid #eee; padding-top: 0.5rem; }
-
-  /* Legenda forestale */
   .legend { background: white; padding: 0.6rem 0.9rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 0.8rem; max-width: 210px; max-height: 260px; overflow-y: auto; }
   .legend h4 { color: #1f4e5f; margin-bottom: 0.4rem; font-size: 0.85rem; }
   .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
@@ -54,7 +40,6 @@
   <a href="ticino.html">← Torna al progetto</a>
 </header>
 
-<!-- Pannello laterale -->
 <div id="side-panel">
   <div class="panel-header">
     <h3>Il Parco del Ticino</h3>
@@ -156,7 +141,19 @@ function addControls() {
   };
   L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 
-  // Card compatta con Lo sapevi
+  // Suggerimento sotto il layer control
+  setTimeout(() => {
+    const layerCtrl = document.querySelector('.leaflet-control-layers');
+    if (layerCtrl) {
+      const hint = document.createElement('div');
+      hint.id = 'layer-hint';
+      hint.style.cssText = 'padding:6px 10px 8px;font-size:0.75rem;color:#555;font-style:italic;border-top:1px solid #ddd;line-height:1.4;';
+      hint.innerHTML = '🌲 Attiva la Carta Forestale e clicca su un poligono per consultare la tipologia.';
+      layerCtrl.appendChild(hint);
+    }
+  }, 200);
+
+  // Card compatta Lo sapevi
   const infoCtrl = L.control({ position: 'bottomleft' });
   infoCtrl.onAdd = () => {
     const div = L.DomUtil.create('div', 'info-card');
@@ -191,12 +188,16 @@ function addControls() {
 
   map.on('overlayadd', e => {
     if (e.name === 'Carta Forestale 2025') {
+      const hint = document.getElementById('layer-hint');
+      if (hint) hint.style.display = 'none';
       const leg = document.getElementById('forest-legend');
       if (leg) { leg.style.display = 'block'; updateLegend(); }
     }
   });
   map.on('overlayremove', e => {
     if (e.name === 'Carta Forestale 2025') {
+      const hint = document.getElementById('layer-hint');
+      if (hint) hint.style.display = 'block';
       const leg = document.getElementById('forest-legend');
       if (leg) leg.style.display = 'none';
     }
