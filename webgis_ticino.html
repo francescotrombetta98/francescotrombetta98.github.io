@@ -13,8 +13,8 @@
   header h1 { font-size: 1.1rem; }
   header a { color: #a8d8ea; text-decoration: none; font-size: 0.85rem; margin-left: auto; }
   #map { flex: 1; }
-  .info-box { background: white; padding: 0.6rem 0.9rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 0.82rem; line-height: 1.6; max-width: 230px; }
-  .info-box h4 { color: #1f4e5f; margin-bottom: 0.4rem; font-size: 0.9rem; }
+  .info-box { background: white; padding: 0.7rem 1rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 0.82rem; line-height: 1.6; max-width: 240px; }
+  .info-box h4 { color: #1f4e5f; margin-bottom: 0.4rem; font-size: 0.9rem; border-bottom: 1px solid #ddd; padding-bottom: 0.3rem; }
 </style>
 </head>
 <body>
@@ -31,58 +31,52 @@ const BASE = 'img/webgis/ticino/';
 
 const map = L.map('map').setView([45.55, 8.65], 11);
 
-const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors', maxZoom: 18
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 18
 }).addTo(map);
 
-const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  attribution: 'Esri, Maxar, Earthstar Geographics', maxZoom: 18
-});
-
-// Stili
 const stylePiemonte = { color: '#003399', weight: 2.5, fillColor: '#3366ff', fillOpacity: 0.20 };
 const styleLombardia = { color: '#006600', weight: 2, fillColor: '#33cc33', fillOpacity: 0.20 };
-const styleComuni    = { color: '#555', weight: 1, fillColor: 'transparent', fillOpacity: 0 };
-const styleMalpensa  = { color: '#8B0000', weight: 2.5, fillColor: '#FF0000', fillOpacity: 0.60 };
+const styleComuni    = { color: '#666', weight: 1, fillColor: 'transparent', fillOpacity: 0 };
+const styleMalpensa  = { color: '#8B0000', weight: 3, fillColor: '#FF0000', fillOpacity: 0.65 };
 const styleNatura    = { color: '#8B4513', weight: 2, fillColor: 'transparent', dashArray: '6 4', fillOpacity: 0 };
 
 let layerPiemonte, layerLombardia, layerComuni, layerMalpensaPoly, layerMalpensaPunto, layerNatura;
 
-// Parco Naturale del Ticino Piemontese (limiti_ticino.geojson)
 fetch(BASE + 'limiti_ticino.geojson')
   .then(r => r.json())
   .then(data => {
     layerPiemonte = L.geoJSON(data, {
       style: stylePiemonte,
-      onEachFeature: (f, l) => l.bindPopup('<b>Parco Naturale del Ticino Piemontese</b><br>Area di studio del progetto')
+      onEachFeature: (f, l) => l.bindPopup('<b>Parco Naturale del Ticino Piemontese</b>')
     }).addTo(map);
     map.fitBounds(layerPiemonte.getBounds().pad(0.15));
+    addControls();
   });
 
-// Parco Regionale della Valle del Ticino – Lombardia (parco_ticino_lombardia.geojson)
 fetch(BASE + 'parco_ticino_lombardia.geojson')
   .then(r => r.json())
   .then(data => {
     layerLombardia = L.geoJSON(data, {
       style: styleLombardia,
-      onEachFeature: (f, l) => l.bindPopup('<b>Parco Regionale della Valle del Ticino</b><br>(Lombardia)')
+      onEachFeature: (f, l) => l.bindPopup('<b>Parco Lombardo della Valle del Ticino</b>')
     }).addTo(map);
   });
 
-// Comuni
 fetch(BASE + 'limiti_comuni_ticino.geojson')
   .then(r => r.json())
   .then(data => {
     layerComuni = L.geoJSON(data, {
       style: styleComuni,
       onEachFeature: (f, l) => {
-        const nome = f.properties && (f.properties.COMUNE || f.properties.comune || f.properties.NAME || Object.values(f.properties)[0]);
+        const p = f.properties;
+        const nome = p && (p.COMUNE || p.comune || p.NAME || p.name || Object.values(p).find(v => typeof v === 'string'));
         if (nome) l.bindPopup('<b>' + nome + '</b>');
       }
     }).addTo(map);
   });
 
-// Malpensa poligono
 fetch(BASE + 'malpensa_poligono.geojson')
   .then(r => r.json())
   .then(data => {
@@ -92,7 +86,6 @@ fetch(BASE + 'malpensa_poligono.geojson')
     }).addTo(map);
   });
 
-// Malpensa punto
 fetch(BASE + 'malpensa_punto.geojson')
   .then(r => r.json())
   .then(data => {
@@ -103,36 +96,39 @@ fetch(BASE + 'malpensa_punto.geojson')
     }).addTo(map);
   });
 
-// Natura 2000 — parte SPENTO
 fetch(BASE + 'siti_rete_natura_2000.geojson')
   .then(r => r.json())
   .then(data => {
     layerNatura = L.geoJSON(data, {
       style: styleNatura,
       onEachFeature: (f, l) => {
-        const nome = f.properties && (f.properties.SITENAME || f.properties.sitename || f.properties.NAME);
+        const p = f.properties;
+        const nome = p && (p.SITENAME || p.sitename || p.NAME);
         l.bindPopup('<b>Sito Rete Natura 2000</b>' + (nome ? '<br>' + nome : ''));
       }
     });
-    addControls();
   });
 
 function addControls() {
-  const baseLayers = { 'OpenStreetMap': osm, 'Satellite (Esri)': satellite };
   const overlays = {
     'Parco Naturale del Ticino Piemontese': layerPiemonte,
-    'Parco Reg. Valle del Ticino (Lombardia)': layerLombardia,
+    'Parco Lombardo della Valle del Ticino': layerLombardia,
     'Comuni': layerComuni,
     'Aeroporto Malpensa': layerMalpensaPoly,
     'Malpensa (punto)': layerMalpensaPunto,
     'Rete Natura 2000 (spento)': layerNatura
   };
-  L.control.layers(baseLayers, overlays, { collapsed: false }).addTo(map);
+  L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 
   const info = L.control({ position: 'bottomleft' });
   info.onAdd = () => {
     const div = L.DomUtil.create('div', 'info-box');
-    div.innerHTML = '<h4>Parco del Ticino Piemontese</h4>Monitoraggio satellitare della vegetazione 1984–2025.<br><br>Clicca sui layer per informazioni.';
+    div.innerHTML = `<h4>Parco Naturale del Ticino Piemontese</h4>
+      Superficie: ~6.500 ha<br>
+      Istituito: 1978<br>
+      Rete Natura 2000: IT1110020<br>
+      A ridosso dell'Aeroporto di Malpensa.<br><br>
+      Monitoraggio satellitare NDVI 1984–2025.`;
     return div;
   };
   info.addTo(map);
