@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGIS — Parco Naturale del Ticino Piemontese</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; height: 100vh; }
+  header { background: #1f4e5f; color: white; padding: 0.8rem 1.5rem; display: flex; align-items: center; gap: 1rem; }
+  header h1 { font-size: 1.1rem; }
+  header a { color: #a8d8ea; text-decoration: none; font-size: 0.85rem; margin-left: auto; }
+  #map { flex: 1; }
+  .info-box { background: white; padding: 0.6rem 0.9rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 0.82rem; line-height: 1.6; max-width: 220px; }
+  .info-box h4 { color: #1f4e5f; margin-bottom: 0.4rem; font-size: 0.9rem; }
+  .leaflet-control-layers { font-size: 0.82rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>WebGIS — Parco Naturale del Ticino Piemontese</h1>
+  <a href="ticino.html">← Torna al progetto</a>
+</header>
+
+<div id="map"></div>
+
+<script>
+const BASE = 'img/webgis/ticino/';
+
+const map = L.map('map').setView([45.55, 8.65], 11);
+
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 18
+}).addTo(map);
+
+const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Esri, Maxar, Earthstar Geographics',
+  maxZoom: 18
+});
+
+// Stili
+const styleParco = { color: '#2d7a2d', weight: 2, fillColor: '#5cb85c', fillOpacity: 0.25 };
+const styleLimiti = { color: '#1f4e5f', weight: 1.5, fillColor: '#1f4e5f', fillOpacity: 0.08 };
+const styleComuni = { color: '#555', weight: 1, fillColor: 'transparent', fillOpacity: 0 };
+const styleMalpensaPoly = { color: '#cc0000', weight: 2, fillColor: '#ff4444', fillOpacity: 0.35 };
+const styleNatura2000 = { color: '#8B4513', weight: 2, fillColor: 'transparent', dashArray: '6 4', fillOpacity: 0 };
+
+let layerParco, layerLimiti, layerComuni, layerMalpensaPoly, layerMalpensaPunto, layerNatura2000;
+
+function popup(feature, layer, campo) {
+  if (feature.properties && feature.properties[campo]) {
+    layer.bindPopup('<b>' + feature.properties[campo] + '</b>');
+  }
+}
+
+fetch(BASE + 'parco_ticino_lombardia.geojson')
+  .then(r => r.json())
+  .then(data => {
+    layerParco = L.geoJSON(data, { style: styleParco,
+      onEachFeature: (f, l) => l.bindPopup('<b>Parco Naturale del Ticino Piemontese</b>')
+    }).addTo(map);
+    map.fitBounds(layerParco.getBounds().pad(0.1));
+  });
+
+fetch(BASE + 'limiti_ticino.geojson')
+  .then(r => r.json())
+  .then(data => {
+    layerLimiti = L.geoJSON(data, { style: styleLimiti,
+      onEachFeature: (f, l) => { if (f.properties) l.bindPopup(JSON.stringify(f.properties).replace(/[{}"]/g,'').replace(/,/g,'<br>')); }
+    }).addTo(map);
+  });
+
+fetch(BASE + 'limiti_comuni_ticino.geojson')
+  .then(r => r.json())
+  .then(data => {
+    layerComuni = L.geoJSON(data, { style: styleComuni,
+      onEachFeature: (f, l) => { if (f.properties && f.properties.COMUNE) l.bindPopup('<b>' + f.properties.COMUNE + '</b>'); }
+    }).addTo(map);
+  });
+
+fetch(BASE + 'malpensa_poligono.geojson')
+  .then(r => r.json())
+  .then(data => {
+    layerMalpensaPoly = L.geoJSON(data, { style: styleMalpensaPoly,
+      onEachFeature: (f, l) => l.bindPopup('<b>Aeroporto di Malpensa</b>')
+    }).addTo(map);
+  });
+
+fetch(BASE + 'malpensa_punto.geojson')
+  .then(r => r.json())
+  .then(data => {
+    const icon = L.divIcon({ html: '✈', className: '', iconSize: [20, 20], iconAnchor: [10, 10] });
+    layerMalpensaPunto = L.geoJSON(data, {
+      pointToLayer: (f, latlng) => L.marker(latlng, { icon }),
+      onEachFeature: (f, l) => l.bindPopup('<b>Aeroporto di Malpensa</b>')
+    }).addTo(map);
+  });
+
+fetch(BASE + 'siti_rete_natura_2000.geojson')
+  .then(r => r.json())
+  .then(data => {
+    layerNatura2000 = L.geoJSON(data, { style: styleNatura2000,
+      onEachFeature: (f, l) => { if (f.properties && f.properties.SITENAME) l.bindPopup('<b>Natura 2000</b><br>' + f.properties.SITENAME); }
+    });
+    // NON aggiunto alla mappa: parte spento
+    addControls();
+  });
+
+function addControls() {
+  const baseLayers = { 'OpenStreetMap': osm, 'Satellite': satellite };
+  const overlays = {
+    'Parco del Ticino': layerParco,
+    'Limiti area studio': layerLimiti,
+    'Comuni': layerComuni,
+    'Aeroporto Malpensa (poligono)': layerMalpensaPoly,
+    'Aeroporto Malpensa (punto)': layerMalpensaPunto,
+    'Rete Natura 2000 (spento)': layerNatura2000
+  };
+  L.control.layers(baseLayers, overlays, { collapsed: false }).addTo(map);
+
+  const info = L.control({ position: 'bottomleft' });
+  info.onAdd = () => {
+    const div = L.DomUtil.create('div', 'info-box');
+    div.innerHTML = '<h4>Progetto</h4>Monitoraggio satellitare della vegetazione nel Parco Naturale del Ticino Piemontese (1984–2025).<br><br>Clicca sui layer per informazioni.';
+    return div;
+  };
+  info.addTo(map);
+}
+</script>
+
+</body>
+</html>
