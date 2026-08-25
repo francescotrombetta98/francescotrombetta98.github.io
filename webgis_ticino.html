@@ -8,23 +8,43 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; height: 100vh; }
-  header { background: #1f4e5f; color: white; padding: 0.8rem 1.5rem; display: flex; align-items: center; }
+  body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  header { background: #1f4e5f; color: white; padding: 0.8rem 1.5rem; display: flex; align-items: center; flex-shrink: 0; }
   header h1 { font-size: 1.05rem; }
   header a { color: #a8d8ea; text-decoration: none; font-size: 0.85rem; margin-left: auto; }
   #map { flex: 1; }
-  .info-box {
-    background: white; padding: 0.8rem 1rem; border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 0.78rem;
-    line-height: 1.55; max-width: 270px;
+
+  /* Card compatta in basso a sinistra */
+  .info-card {
+    background: white; padding: 0.9rem 1.1rem; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25); font-size: 0.88rem;
+    max-width: 260px; line-height: 1.5;
   }
-  .info-box h4 { color: #1f4e5f; margin-bottom: 0.4rem; font-size: 0.88rem; border-bottom: 1px solid #ddd; padding-bottom: 0.3rem; }
-  .info-box p { margin-bottom: 0.5rem; }
-  .info-box .fonte { font-size: 0.7rem; color: #777; font-style: italic; margin-top: 0.4rem; }
-  .legend { background: white; padding: 0.6rem 0.9rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 0.78rem; max-width: 210px; max-height: 280px; overflow-y: auto; }
+  .info-card h4 { color: #1f4e5f; font-size: 1rem; margin-bottom: 0.5rem; }
+  .sapevi-label { display: inline-block; background: #e8f5e9; color: #2e7d32; font-size: 0.78rem; font-weight: 600; border-radius: 4px; padding: 0.15rem 0.5rem; margin-bottom: 0.5rem; }
+  .sapevi-text { font-size: 0.85rem; color: #333; margin-bottom: 0.7rem; line-height: 1.5; }
+  .btn-scopri { background: #1f4e5f; color: white; border: none; border-radius: 5px; padding: 0.4rem 0.9rem; font-size: 0.84rem; cursor: pointer; }
+  .btn-scopri:hover { background: #163d4e; }
+
+  /* Pannello laterale */
+  #side-panel {
+    position: fixed; top: 0; left: -380px; width: 360px; height: 100vh;
+    background: white; box-shadow: 3px 0 15px rgba(0,0,0,0.2);
+    transition: left 0.35s ease; z-index: 1100; display: flex; flex-direction: column;
+  }
+  #side-panel.open { left: 0; }
+  .panel-header { background: #1f4e5f; color: white; padding: 1rem 1.2rem; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .panel-header h3 { font-size: 1rem; }
+  .btn-close { background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer; line-height: 1; }
+  .panel-body { padding: 1.2rem 1.3rem; overflow-y: auto; font-size: 0.88rem; line-height: 1.7; color: #333; flex: 1; }
+  .panel-body p { margin-bottom: 0.9rem; }
+  .panel-body .fonte { font-size: 0.75rem; color: #777; font-style: italic; margin-top: 0.5rem; border-top: 1px solid #eee; padding-top: 0.5rem; }
+
+  /* Legenda forestale */
+  .legend { background: white; padding: 0.6rem 0.9rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 0.8rem; max-width: 210px; max-height: 260px; overflow-y: auto; }
   .legend h4 { color: #1f4e5f; margin-bottom: 0.4rem; font-size: 0.85rem; }
   .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
-  .legend-color { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.2); }
+  .legend-color { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.15); }
 </style>
 </head>
 <body>
@@ -34,9 +54,26 @@
   <a href="ticino.html">← Torna al progetto</a>
 </header>
 
+<!-- Pannello laterale -->
+<div id="side-panel">
+  <div class="panel-header">
+    <h3>Il Parco del Ticino</h3>
+    <button class="btn-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-body">
+    <p>In un territorio di pianura intensamente trasformato e frammentato come quello padano, le fasce fluviali rappresentano tra i pochi spazi naturali residui: serbatoi di biodiversità e al tempo stesso corridoi ecologici che assicurano la connettività tra gli ambienti naturali. Tra questi, il corridoio del fiume Ticino è uno dei più rilevanti.</p>
+    <p>Il Parco Naturale del Ticino Piemontese, istituito nel 1978, si estende lungo la riva nord-occidentale del fiume Ticino, dall'uscita dal Lago Maggiore fino al confine con la Lombardia. Insieme al Parco Lombardo della Valle del Ticino costituisce l'area protetta fluviale più estesa d'Europa, riconosciuta nel circuito MAB UNESCO e inclusa nella rete Natura 2000 ai sensi delle Direttive Habitat e Uccelli.</p>
+    <p>Il territorio alterna tratti di riva boscata a settori di valle più ampia, dove si susseguono boschi, prati stabili, coltivi, ghiareti e lanche; nei rami secondari a lento scorrimento del fiume si concentra gran parte della biodiversità legata all'ambiente fluviale, sostenendo un patrimonio di rilievo nel contesto della Pianura Padana.</p>
+    <p class="fonte">Fonte: Ente di Gestione delle Aree Protette del Ticino e del Lago Maggiore</p>
+  </div>
+</div>
+
 <div id="map"></div>
 
 <script>
+function openPanel()  { document.getElementById('side-panel').classList.add('open'); }
+function closePanel() { document.getElementById('side-panel').classList.remove('open'); }
+
 const BASE = 'img/webgis/ticino/';
 
 const PALETTE = [
@@ -47,7 +84,6 @@ const PALETTE = [
 ];
 const colorMap = {};
 let paletteIdx = 0;
-
 function getColor(tipo) {
   if (!tipo) return '#aaa';
   if (!colorMap[tipo]) { colorMap[tipo] = PALETTE[paletteIdx % PALETTE.length]; paletteIdx++; }
@@ -55,7 +91,6 @@ function getColor(tipo) {
 }
 
 const map = L.map('map').setView([45.55, 8.65], 11);
-
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   maxZoom: 18
@@ -64,65 +99,53 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let layerPiemonte, layerLombardia, layerNatura, layerForeste;
 let loaded = 0;
 const TOTAL = 4;
+function tryAddControls() { loaded++; if (loaded === TOTAL) addControls(); }
 
-function tryAddControls() {
-  loaded++;
-  if (loaded === TOTAL) addControls();
-}
+fetch(BASE + 'limiti_ticino.geojson').then(r => r.json()).then(data => {
+  layerPiemonte = L.geoJSON(data, {
+    style: { color: '#003399', weight: 2.5, fillColor: '#3366ff', fillOpacity: 0.15 },
+    onEachFeature: (f, l) => l.bindPopup('<b>Parco Naturale del Ticino Piemontese</b>')
+  }).addTo(map);
+  map.fitBounds(layerPiemonte.getBounds().pad(0.12));
+  tryAddControls();
+});
 
-fetch(BASE + 'limiti_ticino.geojson')
-  .then(r => r.json())
-  .then(data => {
-    layerPiemonte = L.geoJSON(data, {
-      style: { color: '#003399', weight: 2.5, fillColor: '#3366ff', fillOpacity: 0.15 },
-      onEachFeature: (f, l) => l.bindPopup('<b>Parco Naturale del Ticino Piemontese</b>')
-    }).addTo(map);
-    map.fitBounds(layerPiemonte.getBounds().pad(0.12));
-    tryAddControls();
+fetch(BASE + 'parco_ticino_lombardia.geojson').then(r => r.json()).then(data => {
+  layerLombardia = L.geoJSON(data, {
+    style: { color: '#006600', weight: 2, fillColor: '#33cc33', fillOpacity: 0.12 },
+    onEachFeature: (f, l) => l.bindPopup('<b>Parco Lombardo della Valle del Ticino</b>')
+  }).addTo(map);
+  tryAddControls();
+});
+
+fetch(BASE + 'siti_rete_natura_2000.geojson').then(r => r.json()).then(data => {
+  layerNatura = L.geoJSON(data, {
+    style: { color: '#8B4513', weight: 2, fillColor: 'transparent', dashArray: '6 4', fillOpacity: 0 },
+    onEachFeature: (f, l) => {
+      const p = f.properties;
+      const nome = p && (p.SITENAME || p.sitename || p.NAME);
+      l.bindPopup('<b>Sito Rete Natura 2000</b>' + (nome ? '<br>' + nome : ''));
+    }
   });
+  tryAddControls();
+});
 
-fetch(BASE + 'parco_ticino_lombardia.geojson')
-  .then(r => r.json())
-  .then(data => {
-    layerLombardia = L.geoJSON(data, {
-      style: { color: '#006600', weight: 2, fillColor: '#33cc33', fillOpacity: 0.12 },
-      onEachFeature: (f, l) => l.bindPopup('<b>Parco Lombardo della Valle del Ticino</b>')
-    }).addTo(map);
-    tryAddControls();
+fetch(BASE + 'carta_forestale_2025.geojson').then(r => r.json()).then(data => {
+  layerForeste = L.geoJSON(data, {
+    style: f => ({
+      color: '#555', weight: 0.4,
+      fillColor: getColor(f.properties && f.properties.lc_tipi_10),
+      fillOpacity: 0.75
+    }),
+    onEachFeature: (f, l) => {
+      const p = f.properties || {};
+      const tipo = p.lc_tipi_10 || '—';
+      const area = p['Area (ha)'] != null ? Number(p['Area (ha)']).toFixed(2) : '—';
+      l.bindPopup('<b>Tipologia forestale</b><br>' + tipo + '<br>Area: ' + area + ' ha');
+    }
   });
-
-fetch(BASE + 'siti_rete_natura_2000.geojson')
-  .then(r => r.json())
-  .then(data => {
-    layerNatura = L.geoJSON(data, {
-      style: { color: '#8B4513', weight: 2, fillColor: 'transparent', dashArray: '6 4', fillOpacity: 0 },
-      onEachFeature: (f, l) => {
-        const p = f.properties;
-        const nome = p && (p.SITENAME || p.sitename || p.NAME);
-        l.bindPopup('<b>Sito Rete Natura 2000</b>' + (nome ? '<br>' + nome : ''));
-      }
-    });
-    tryAddControls();
-  });
-
-fetch(BASE + 'carta_forestale_2025.geojson')
-  .then(r => r.json())
-  .then(data => {
-    layerForeste = L.geoJSON(data, {
-      style: f => ({
-        color: '#555', weight: 0.4,
-        fillColor: getColor(f.properties && f.properties.lc_tipi_10),
-        fillOpacity: 0.75
-      }),
-      onEachFeature: (f, l) => {
-        const p = f.properties || {};
-        const tipo = p.lc_tipi_10 || '—';
-        const area = p['Area (ha)'] != null ? Number(p['Area (ha)']).toFixed(2) : '—';
-        l.bindPopup('<b>Tipologia forestale</b><br>' + tipo + '<br>Area: ' + area + ' ha');
-      }
-    });
-    tryAddControls();
-  });
+  tryAddControls();
+});
 
 function addControls() {
   const overlays = {
@@ -133,18 +156,19 @@ function addControls() {
   };
   L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 
-  // Info box
-  const info = L.control({ position: 'bottomleft' });
-  info.onAdd = () => {
-    const div = L.DomUtil.create('div', 'info-box');
-    div.innerHTML = `<h4>Il Parco del Ticino</h4>
-      <p>In un territorio di pianura intensamente trasformato e frammentato come quello padano, le fasce fluviali rappresentano tra i pochi spazi naturali residui: serbatoi di biodiversità e al tempo stesso corridoi ecologici che assicurano la connettività tra gli ambienti naturali. Tra questi, il corridoio del fiume Ticino è uno dei più rilevanti.</p>
-      <p>Il Parco Naturale del Ticino Piemontese, istituito nel 1978, si estende lungo la riva nord-occidentale del fiume Ticino, dall'uscita dal Lago Maggiore fino al confine con la Lombardia. Insieme al Parco Lombardo della Valle del Ticino costituisce l'area protetta fluviale più estesa d'Europa, riconosciuta nel circuito MAB UNESCO e inclusa nella rete Natura 2000.</p>
-      <p>Il territorio alterna tratti di riva boscata a settori di valle più ampia, dove si susseguono boschi, prati stabili, coltivi, ghiareti e lanche; nei rami secondari a lento scorrimento del fiume si concentra gran parte della biodiversità legata all'ambiente fluviale.</p>
-      <p class="fonte">Fonte: Ente di Gestione delle Aree Protette del Ticino e del Lago Maggiore</p>`;
+  // Card compatta con Lo sapevi
+  const infoCtrl = L.control({ position: 'bottomleft' });
+  infoCtrl.onAdd = () => {
+    const div = L.DomUtil.create('div', 'info-card');
+    div.innerHTML = `
+      <h4>Il Parco del Ticino</h4>
+      <div class="sapevi-label">💡 Lo sapevi?</div>
+      <div class="sapevi-text">In un territorio di pianura intensamente trasformato, le fasce fluviali sono tra i pochi corridoi ecologici rimasti nella Pianura Padana.</div>
+      <button class="btn-scopri" onclick="openPanel()">Scopri di più →</button>`;
+    L.DomEvent.disableClickPropagation(div);
     return div;
   };
-  info.addTo(map);
+  infoCtrl.addTo(map);
 
   // Legenda carta forestale
   const legendCtrl = L.control({ position: 'bottomright' });
