@@ -31,6 +31,17 @@
   .legend h4 { color: #1f4e5f; margin-bottom: 0.4rem; font-size: 0.85rem; }
   .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
   .legend-color { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.15); }
+  .ndvi-open-btn { background: #2d7a2d; color: #fff; padding: 0.45rem 0.8rem; border-radius: 6px; font-size: 0.82rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+  .ndvi-panel { background: #fff; padding: 0.7rem 0.9rem; border-radius: 8px; width: 250px; box-shadow: 0 2px 10px rgba(0,0,0,0.25); font-size: 0.82rem; }
+  .ndvi-head { display: flex; justify-content: space-between; align-items: center; color: #1f4e5f; margin-bottom: 0.35rem; }
+  .ndvi-head button { background: none; border: none; font-size: 1rem; cursor: pointer; color: #888; }
+  .ndvi-data { font-size: 0.95rem; font-weight: 600; color: #2d7a2d; margin-bottom: 0.45rem; }
+  .ndvi-row { display: flex; align-items: center; gap: 0.5rem; }
+  .ndvi-row button { background: #1f4e5f; color: #fff; border: none; border-radius: 4px; width: 30px; height: 26px; cursor: pointer; }
+  .ndvi-row input { flex: 1; }
+  .ndvi-scale { display: flex; align-items: center; gap: 5px; margin-top: 0.5rem; font-size: 0.7rem; color: #666; }
+  .ndvi-bar { flex: 1; height: 9px; border-radius: 2px; background: linear-gradient(to right,#a50026,#f46d43,#fee08b,#d9ef8b,#66bd63,#006837); }
+  .ndvi-note { font-size: 0.68rem; color: #888; margin-top: 0.4rem; line-height: 1.35; }
 </style>
 </head>
 <body>
@@ -81,6 +92,49 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18
 }).addTo(map);
 
+/* ---------- animazione NDVI ---------- */
+const NDVI_DATE = ['20250214','20250331','20250425','20250515','20250616',
+                   '20250704','20250803','20250907','20251007','20251103',
+                   '20251231'];
+const NDVI_BOUNDS = [[45.2632, 8.6118], [45.5981, 8.8428]];
+let ndviLayer = null, ndviIdx = 0, ndviTimer = null;
+
+function fmtData(s) {
+  const m = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  return parseInt(s.slice(6, 8)) + ' ' + m[parseInt(s.slice(4, 6)) - 1] + ' ' + s.slice(0, 4);
+}
+
+function mostraNdvi(i) {
+  ndviIdx = (i + NDVI_DATE.length) % NDVI_DATE.length;
+  const url = BASE + 'ndvi_2025/ndvi_' + NDVI_DATE[ndviIdx] + '.png';
+  if (ndviLayer) map.removeLayer(ndviLayer);
+  ndviLayer = L.imageOverlay(url, NDVI_BOUNDS, { opacity: 0.85 }).addTo(map);
+  document.getElementById('ndvi-data').textContent = fmtData(NDVI_DATE[ndviIdx]);
+  document.getElementById('ndvi-slider').value = ndviIdx;
+}
+
+function playNdvi() {
+  const b = document.getElementById('ndvi-play');
+  if (ndviTimer) { clearInterval(ndviTimer); ndviTimer = null; b.textContent = '▶'; return; }
+  b.textContent = '❚❚';
+  ndviTimer = setInterval(() => mostraNdvi(ndviIdx + 1), 900);
+}
+
+function apriNdvi() {
+  document.getElementById('ndvi-panel').style.display = 'block';
+  document.getElementById('ndvi-open').style.display = 'none';
+  mostraNdvi(0);
+}
+
+function chiudiNdvi() {
+  if (ndviTimer) { clearInterval(ndviTimer); ndviTimer = null;
+                   document.getElementById('ndvi-play').textContent = '▶'; }
+  if (ndviLayer) { map.removeLayer(ndviLayer); ndviLayer = null; }
+  document.getElementById('ndvi-panel').style.display = 'none';
+  document.getElementById('ndvi-open').style.display = 'block';
+}
+
+/* ---------- layer vettoriali ---------- */
 let layerPiemonte, layerLombardia, layerNatura, layerForeste;
 let loaded = 0;
 const TOTAL = 4;
@@ -141,19 +195,52 @@ function addControls() {
   };
   L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 
-  // Suggerimento sotto il layer control
   setTimeout(() => {
     const layerCtrl = document.querySelector('.leaflet-control-layers');
     if (layerCtrl) {
       const hint = document.createElement('div');
       hint.id = 'layer-hint';
       hint.style.cssText = 'padding:6px 10px 8px;font-size:0.75rem;color:#555;font-style:italic;border-top:1px solid #ddd;line-height:1.4;';
-      hint.innerHTML = '🌲 Attiva la Carta Forestale e clicca su un poligono per consultare la tipologia forestale.';
+      hint.innerHTML = '🌲 Attiva la Carta Forestale e clicca su un poligono per consultare la tipologia.';
       layerCtrl.appendChild(hint);
     }
   }, 200);
 
-  // Card compatta Lo sapevi
+  const openCtrl = L.control({ position: 'topright' });
+  openCtrl.onAdd = () => {
+    const d = L.DomUtil.create('div', 'ndvi-open-btn');
+    d.id = 'ndvi-open';
+    d.innerHTML = '🌱 Animazione NDVI 2025';
+    d.onclick = apriNdvi;
+    L.DomEvent.disableClickPropagation(d);
+    return d;
+  };
+  openCtrl.addTo(map);
+
+  const ndviCtrl = L.control({ position: 'topright' });
+  ndviCtrl.onAdd = () => {
+    const d = L.DomUtil.create('div', 'ndvi-panel');
+    d.id = 'ndvi-panel';
+    d.style.display = 'none';
+    d.innerHTML = `
+      <div class="ndvi-head">
+        <b>NDVI 2025</b>
+        <button onclick="chiudiNdvi()">✕</button>
+      </div>
+      <div class="ndvi-data" id="ndvi-data"></div>
+      <div class="ndvi-row">
+        <button id="ndvi-play" onclick="playNdvi()">▶</button>
+        <input type="range" id="ndvi-slider" min="0" max="${NDVI_DATE.length - 1}"
+               value="0" oninput="mostraNdvi(+this.value)">
+      </div>
+      <div class="ndvi-scale"><span>0</span><div class="ndvi-bar"></div><span>0,8</span></div>
+      <div class="ndvi-note">Sentinel-2, scene a bassa copertura nuvolosa.
+        Intervalli fra le date non regolari.</div>`;
+    L.DomEvent.disableClickPropagation(d);
+    return d;
+  };
+  ndviCtrl.addTo(map);
+
   const infoCtrl = L.control({ position: 'bottomleft' });
   infoCtrl.onAdd = () => {
     const div = L.DomUtil.create('div', 'info-card');
@@ -167,7 +254,6 @@ function addControls() {
   };
   infoCtrl.addTo(map);
 
-  // Legenda carta forestale
   const legendCtrl = L.control({ position: 'bottomright' });
   legendCtrl.onAdd = () => {
     const div = L.DomUtil.create('div', 'legend');
